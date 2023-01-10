@@ -68,4 +68,10 @@ export const Errormessage = {
       apiErrorCode: '403',
       errorMessage: 'You cant follow yourself',
     },
+
+    NotFollowing: {
+      success: false,
+      apiErrorCode: '403',
+      errorMessage: 'You cant unfollow who you are not following',
+    }
   };

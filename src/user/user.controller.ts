@@ -46,7 +46,12 @@ constructor(private service: UserService) {}
   }
 
   @Post('/follow/:id')
-  FollowUser(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
+  followUser(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
     return this.service.followUser(token, id);
+  }
+
+  @Post('/unfollow/:id')
+  unfollowUser(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
+    return this.service.unfollowUser(token, id);
   }
 }

@@ -235,7 +235,26 @@ export class UserService {
       })
       if (!userFollowing)
         throw new NotFoundException(Errormessage.Userexist);
-      
+        const getUserFollowers = await this.followerModel.findOne({
+          where: {
+            userId: id,
+            followerId: userFollower.id
+          }
+        })
+        const getUserFollowing = await this.followingModel.findOne({
+          where: {
+            userId: userFollower.id,
+            followingId: id
+          }
+        })
+        if(!getUserFollowers) throw new NotFoundException(Errormessage.NotFollowing)
+        const deleteUserFollower = await this.followerModel.delete(getUserFollowers.id)
+        const deleteUserFollowing = await this.followingModel.delete(getUserFollowing.id)
+
+        return {
+          success: true,
+          message: "User successfully unfollowed"
+        }
     } catch(err) {
       throw err
     }
