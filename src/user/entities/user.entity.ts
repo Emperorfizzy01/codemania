@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Post } from './post.entity';
 
 @Entity('users')
 export class User {
@@ -17,6 +18,12 @@ export class User {
   @Column({ nullable: false, type: 'text' })
   password: string;
 
+  @OneToMany(() => Post, (post) => post.user, { cascade: true })
+  post: Post[];
+
   @Column({ nullable: true })
-  dateCreated: Date
+  dateCreated: Date;
+
+  @Column({ nullable: true })
+  dateUpdated: Date;
 }

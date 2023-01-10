@@ -11,6 +11,12 @@ export const Errormessage = {
       apiErrorCode: '403',
       errorMessage: 'User with such id does not exist',
     },
+
+    Post: {
+      success: false,
+      apiErrorCode: '403',
+      errorMessage: 'Post with such id does not exist',
+    },
  
   
     Unmatchpassword: {
@@ -45,4 +51,9 @@ export const Errormessage = {
       errorMessage: 'You are not authorised to perform this operation',
     },
   
+    InvalidToken: {
+      success: false,
+      apiErrorCode: '401',
+      errorMessage: 'Token has either expired or not provided',
+    },
   };
