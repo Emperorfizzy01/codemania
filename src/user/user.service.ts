@@ -173,35 +173,69 @@ export class UserService {
     try{
       if (!token) throw new NotFoundException(Errormessage.InvalidToken);
       const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
-      const user = await this.userModel.findOneBy({
+      const userFollower = await this.userModel.findOneBy({
         phone,
       });
 
-      if (!user)
+      if (!userFollower)
         throw new NotFoundException(Errormessage.Userexist);
       
-      const user2 = await this.userModel.findOneBy({
+      const userFollowing = await this.userModel.findOneBy({
         id
       })
-      if (!user2)
+      if (!userFollowing)
         throw new NotFoundException(Errormessage.Userexist);
-      const followedUser = await this.followerModel.create({
-        userId: user2.id,
-        followerId: user.id
+      if(userFollower.id == id) throw new NotFoundException(Errormessage.InvalidOperation)
+      const getUserFollowers = await this.followerModel.findOne({
+        where: {
+          userId: id,
+          followerId: userFollower.id
+        }
       })
-      const followingUser = await this.followingModel.create({
-        userId: user.id,
-        followingId: user2.id
-      })
+      if(!getUserFollowers) {
+        const followedUser = this.followerModel.create({
+          userId: userFollowing.id,
+          followerId: userFollower.id,
+          dateCreated: new Date(Date.now()),
+        })
+        const followingUser = this.followingModel.create({
+          userId: userFollower.id,
+          followingId: userFollowing.id,
+          dateCreated: new Date(Date.now()),
+        })
+  
+     const follower = await this.followerModel.save(followedUser);
+     const following = await this.followingModel.save(followingUser)
+     return {
+       responseCode: 200,
+       message: "User followed",
+       follower,
+       following
+     }
+      }
+      throw new NotFoundException(Errormessage.AlreadyFollowing)
+    } catch(err) {
+      throw err
+    }
+  }
 
-   const follower = await this.followerModel.save(followedUser);
-   const following = await this.followingModel.save(followingUser)
-   return {
-     responseCode: 200,
-     message: "User followed",
-     follower,
-     following
-   }
+  async unfollowUser(token: string, id: number): Promise<any> {
+    try{
+      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
+      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
+      const userFollower = await this.userModel.findOneBy({
+        phone,
+      });
+
+      if (!userFollower)
+        throw new NotFoundException(Errormessage.Userexist);
+      
+      const userFollowing = await this.userModel.findOneBy({
+        id
+      })
+      if (!userFollowing)
+        throw new NotFoundException(Errormessage.Userexist);
+      
     } catch(err) {
       throw err
     }
