@@ -123,7 +123,7 @@ export class UserService {
      if(post.user.id !== user.id) throw new NotFoundException(Errormessage.UnauthorisedOperation)
      post.text = postDto.text,
      post.dateUpdated = new Date(Date.now())
-     const updatedPost = await this.postModel.save(post)
+     const updatedPost = await this.postModel.save(post);
      return {
         responseCode: 200,
         post: updatedPost,

@@ -24,6 +24,4 @@ export class User {
   @Column({ nullable: true })
   dateCreated: Date;
 
-  @Column({ nullable: true })
-  dateUpdated: Date;
 }
