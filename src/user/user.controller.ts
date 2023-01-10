@@ -30,6 +30,11 @@ constructor(private service: UserService) {}
     return this.service.login(createDto);
   }
 
+  @Get('/:id')
+  getUser(@Param('id') id: number): Promise<any> {
+    return this.service.getUser(id)
+  }
+
   @Post('/post')
   createPost(@Headers('token') token: string, @Body() createDto: CreatePostDto): Promise<any> {
     return this.service.createPost(token, createDto);
@@ -53,5 +58,10 @@ constructor(private service: UserService) {}
   @Post('/unfollow/:id')
   unfollowUser(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
     return this.service.unfollowUser(token, id);
+  }
+
+  @Post('/like/:id')
+  likePost(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
+    return this.service.likePost(token, id);
   }
 }

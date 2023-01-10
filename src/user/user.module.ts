@@ -6,6 +6,7 @@ import { User } from './entities/user.entity';
 import { Post } from './entities/post.entity';
 import { Follower } from '../user/entities/userFollowers.entity';
 import { Following } from '../user/entities/userFollowing.entity';
+import { Like } from '../user/entities/like.entity';
 import { ConfigModule } from '@nestjs/config';
 
 
@@ -15,7 +16,8 @@ import { ConfigModule } from '@nestjs/config';
       User,
       Post,
       Follower,
-      Following
+      Following,
+      Like
     ]),
     ConfigModule.forRoot(),
   ],

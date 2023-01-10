@@ -73,5 +73,11 @@ export const Errormessage = {
       success: false,
       apiErrorCode: '403',
       errorMessage: 'You cant unfollow who you are not following',
-    }
+    },
+
+    AlreadyLiked: {
+      success: false,
+      apiErrorCode: '403',
+      errorMessage: 'You arlready liked that post',
+    },
   };

@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, Equal } from 'typeorm';
 import { User } from '../user/entities/user.entity';
+import { Like } from '../user/entities/like.entity';
 import { Follower } from '../user/entities/userFollowers.entity';
 import { Following } from '../user/entities/userFollowing.entity';
 import { Post } from '../user/entities/post.entity';
@@ -19,7 +20,8 @@ export class UserService {
     @InjectRepository(User) private readonly userModel: Repository<User>,
     @InjectRepository(Post) private readonly postModel: Repository<Post>,
     @InjectRepository(Follower) private readonly followerModel: Repository<Follower>,
-    @InjectRepository(Following) private readonly followingModel: Repository<Following>
+    @InjectRepository(Following) private readonly followingModel: Repository<Following>,
+    @InjectRepository(Like) private readonly likeModel: Repository<Like>
   ) {}
   async createAccount(userDto: CreateUserDto): Promise<any> {
     try {
@@ -74,6 +76,24 @@ export class UserService {
       };
     } catch (err) {
       throw err;
+    }
+  }
+
+  async getUser(id: number): Promise<any> {
+    try{
+     const user = await this.userModel.findOne({
+        where: {
+          id
+        },
+        relations: {
+          post: {
+            likes: true
+          }
+        }
+     })
+     return user
+    } catch(err) {
+      throw err
     }
   }
 
@@ -259,4 +279,50 @@ export class UserService {
       throw err
     }
   }
+
+  async likePost(token: string, id: number): Promise<any> {
+    try {
+      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
+      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
+      const user = await this.userModel.findOneBy({
+        phone,
+      });
+
+      if (!user)
+        throw new NotFoundException(Errormessage.Userexist);
+      const post = await this.postModel.findOne({
+        where: {
+          id: Equal(id)
+        },
+        relations: {
+          likes: true
+        }
+      })
+      if(!post ) throw new NotFoundException(Errormessage.Post);
+      const alreadyLiked = await this.likeModel.findOne({
+        where: {
+          userId: user.id,
+          post : { id: post.id }
+        }
+      })
+     if(!alreadyLiked) {
+      const likePost = await this.likeModel.create({
+        userId: user.id,
+        post,
+        dateCreated: new Date(Date.now())
+      })
+      const likedPost = await this.likeModel.save(likePost)
+      return {
+        responseCode: 200,
+        likedPost,
+        message: "You liked the post"
+      }
+     }
+     throw new NotFoundException(Errormessage.AlreadyLiked)
+      
+    } catch(err) {
+      throw err
+    }
+  }
+
 }
