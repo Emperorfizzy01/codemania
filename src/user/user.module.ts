@@ -4,13 +4,18 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User } from './entities/user.entity';
 import { Post } from './entities/post.entity';
+import { Follower } from '../user/entities/userFollowers.entity';
+import { Following } from '../user/entities/userFollowing.entity';
 import { ConfigModule } from '@nestjs/config';
+
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       User,
-      Post
+      Post,
+      Follower,
+      Following
     ]),
     ConfigModule.forRoot(),
   ],

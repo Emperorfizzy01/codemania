@@ -45,4 +45,8 @@ constructor(private service: UserService) {}
     return this.service.deletePost(token, id);
   }
 
+  @Post('/follow/:id')
+  FollowUser(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
+    return this.service.followUser(token, id);
+  }
 }

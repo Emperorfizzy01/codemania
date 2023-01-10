@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
+import { Follower } from '../user/entities/userFollowers.entity';
+import { Following } from '../user/entities/userFollowing.entity';
 import { Post } from '../user/entities/post.entity';
 import { CreateUserDto } from './dto/user.dto';
 import { CreatePostDto } from './dto/post.dto';
@@ -15,7 +17,9 @@ export class UserService {
   constructor(
     @InjectDataSource() private readonly datasource: DataSource,
     @InjectRepository(User) private readonly userModel: Repository<User>,
-    @InjectRepository(Post) private readonly postModel: Repository<Post>
+    @InjectRepository(Post) private readonly postModel: Repository<Post>,
+    @InjectRepository(Follower) private readonly followerModel: Repository<Follower>,
+    @InjectRepository(Following) private readonly followingModel: Repository<Following>
   ) {}
   async createAccount(userDto: CreateUserDto): Promise<any> {
     try {
@@ -162,6 +166,44 @@ export class UserService {
       };
     } catch (err) {
       throw err;
+    }
+  }
+
+  async followUser(token: string, id: number): Promise<any> {
+    try{
+      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
+      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
+      const user = await this.userModel.findOneBy({
+        phone,
+      });
+
+      if (!user)
+        throw new NotFoundException(Errormessage.Userexist);
+      
+      const user2 = await this.userModel.findOneBy({
+        id
+      })
+      if (!user2)
+        throw new NotFoundException(Errormessage.Userexist);
+      const followedUser = await this.followerModel.create({
+        userId: user2.id,
+        followerId: user.id
+      })
+      const followingUser = await this.followingModel.create({
+        userId: user.id,
+        followingId: user2.id
+      })
+
+   const follower = await this.followerModel.save(followedUser);
+   const following = await this.followingModel.save(followingUser)
+   return {
+     responseCode: 200,
+     message: "User followed",
+     follower,
+     following
+   }
+    } catch(err) {
+      throw err
     }
   }
 }
