@@ -3,10 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User } from './entities/user.entity';
-import { Post } from './entities/post.entity';
-import { Follower } from '../user/entities/userFollowers.entity';
-import { Following } from '../user/entities/userFollowing.entity';
-import { Like } from '../user/entities/like.entity';
+import { Like } from '../like/entities/like.entity';
 import { ConfigModule } from '@nestjs/config';
 
 
@@ -14,9 +11,6 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     TypeOrmModule.forFeature([
       User,
-      Post,
-      Follower,
-      Following,
       Like
     ]),
     ConfigModule.forRoot(),

@@ -13,8 +13,7 @@ import {
     Patch,
   } from '@nestjs/common';
   import { CreateUserDto } from './dto/user.dto';
-  import { CreatePostDto } from './dto/post.dto';
-  import { UserService } from './user.service';
+  import { UserService } from 'src/user/user.service';
 
 @Controller('')
 export class UserController {
@@ -30,43 +29,29 @@ constructor(private service: UserService) {}
     return this.service.login(createDto);
   }
 
-  @Get('/:id')
+  @Get('/user/:id')
   getUser(@Param('id') id: number): Promise<any> {
     return this.service.getUser(id)
   }
 
-  @Post('/post')
-  createPost(@Headers('token') token: string, @Body() createDto: CreatePostDto): Promise<any> {
-    return this.service.createPost(token, createDto);
-  }
+  // @Post('/follow/:id')
+  // followUser(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
+  //   return this.service.followUser(token, id);
+  // }
 
-  @Put('/post/:id')
-  updatePost(@Headers('token') token: string,  @Body() createDto: CreatePostDto, @Param('id') id,): Promise<any> {
-    return this.service.updatePost(token, createDto, id)
-  }
+  // @Post('/unfollow/:id')
+  // unfollowUser(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
+  //   return this.service.unfollowUser(token, id);
+  // }
 
-  @Delete('/delete-post/:id')
-  deletePost(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
-    return this.service.deletePost(token, id);
-  }
+  // @Post('/like/:id')
+  // likePost(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
+  //   return this.service.likePost(token, id);
+  // }
 
-  @Post('/follow/:id')
-  followUser(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
-    return this.service.followUser(token, id);
-  }
+  // @Post('/unlike/:id')
+  // unlikePost(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
+  //   return this.service.unlikePost(token, id);
+  // }
 
-  @Post('/unfollow/:id')
-  unfollowUser(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
-    return this.service.unfollowUser(token, id);
-  }
-
-  @Post('/like/:id')
-  likePost(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
-    return this.service.likePost(token, id);
-  }
-
-  @Post('/unlike/:id')
-  unlikePost(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
-    return this.service.unlikePost(token, id);
-  }
 }

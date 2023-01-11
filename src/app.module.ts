@@ -2,10 +2,17 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
+import { PostModule } from './post/post.module';
+import { FollowModule } from './follow/follow.module';
+import { LikeModule } from './like/like.module';
+
 
 @Module({
   imports: [
     UserModule,
+    PostModule,
+    FollowModule,
+    LikeModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

@@ -1,15 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository, Equal } from 'typeorm';
+import { DataSource, Repository, Equal, In } from 'typeorm';
 import { User } from '../user/entities/user.entity';
-import { Like } from '../user/entities/like.entity';
-import { Follower } from '../user/entities/userFollowers.entity';
-import { Following } from '../user/entities/userFollowing.entity';
-import { Post } from '../user/entities/post.entity';
-import { CreateUserDto } from './dto/user.dto';
-import { CreatePostDto } from './dto/post.dto';
+import { Like } from '../like/entities/like.entity';
+import { CreateUserDto } from 'src/user/dto/user.dto';
 import { Errormessage } from 'src/Errormessage';
-import * as jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken'
 import { JwtPayload } from 'src';
 const bcrypt = require('bcrypt');
 
@@ -18,9 +14,6 @@ export class UserService {
   constructor(
     @InjectDataSource() private readonly datasource: DataSource,
     @InjectRepository(User) private readonly userModel: Repository<User>,
-    @InjectRepository(Post) private readonly postModel: Repository<Post>,
-    @InjectRepository(Follower) private readonly followerModel: Repository<Follower>,
-    @InjectRepository(Following) private readonly followingModel: Repository<Following>,
     @InjectRepository(Like) private readonly likeModel: Repository<Like>
   ) {}
   async createAccount(userDto: CreateUserDto): Promise<any> {
@@ -97,270 +90,87 @@ export class UserService {
     }
   }
 
-  async createPost(token: string, postDto: CreatePostDto): Promise<any> {
-    try {
-      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
-      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
-      const user = await this.userModel.findOneBy({
-        phone,
-      });
 
-      if (!user)
-        throw new NotFoundException(Errormessage.Userexist);
-      const post = await this.postModel.create({
-        text: postDto.text,
-        user,
-        dateCreated: new Date(Date.now()),
-        dateUpdated: new Date(Date.now())
-      })
-      const newPost = await this.postModel.save(post);
-      return {
-        responseCode: 200,
-        post: newPost,
-        message: 'Post created',
-      };
-    } catch(err) {
-      throw err
-    }
-  }
+  // async likePost(token: string, id: number): Promise<any> {
+  //   try {
+  //     if (!token) throw new NotFoundException(Errormessage.InvalidToken);
+  //     const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
+  //     const user = await this.userModel.findOneBy({
+  //       phone,
+  //     });
 
-  async updatePost(token: string, postDto: CreatePostDto, id: number): Promise<any> {
-    try{
-      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
-      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
-      const user = await this.userModel.findOneBy({
-        phone,
-      });
-
-      if (!user)
-        throw new NotFoundException(Errormessage.Userexist);
-
-     const post = await this.postModel.findOne({
-        where: {
-          id: id
-        },
-        relations: {
-          user: true
-        }
-     })
-     if(!post ) throw new NotFoundException(Errormessage.Post);
-     if(post.user.id !== user.id) throw new NotFoundException(Errormessage.UnauthorisedOperation)
-     post.text = postDto.text,
-     post.dateUpdated = new Date(Date.now())
-     const updatedPost = await this.postModel.save(post);
-     return {
-        responseCode: 200,
-        post: updatedPost,
-        message: 'Your post has been updated',
-     }
-    } catch(err) {
-      throw err
-    }
-  }
-
-  async deletePost(token: string, id: number): Promise<any> {
-    try {
-      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
-      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
-      const user = await this.userModel.findOneBy({
-        phone,
-      });
-
-      if (!user)
-        throw new NotFoundException(Errormessage.Userexist);
-
-     const post = await this.postModel.findOne({
-        where: {
-          id: id
-        },
-        relations: {
-          user: true
-        }
-     })
-     if(!post ) throw new NotFoundException(Errormessage.Post);
-     if(post.user.id !== user.id) throw new NotFoundException(Errormessage.UnauthorisedOperation)
-      await this.postModel.delete(id);
-      return {
-        success: true,
-        message: 'Post successfully deleted',
-      };
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  async followUser(token: string, id: number): Promise<any> {
-    try{
-      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
-      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
-      const userFollower = await this.userModel.findOneBy({
-        phone,
-      });
-
-      if (!userFollower)
-        throw new NotFoundException(Errormessage.Userexist);
+  //     if (!user)
+  //       throw new NotFoundException(Errormessage.Userexist);
+  //     const post = await this.postModel.findOne({
+  //       where: {
+  //         id: Equal(id)
+  //       },
+  //       relations: {
+  //         likes: true
+  //       }
+  //     })
+  //     if(!post ) throw new NotFoundException(Errormessage.Post);
+  //     const alreadyLiked = await this.likeModel.findOne({
+  //       where: {
+  //         userId: user.id,
+  //         post : { id: post.id }
+  //       }
+  //     })
+  //    if(!alreadyLiked) {
+  //     const likePost = await this.likeModel.create({
+  //       userId: user.id,
+  //       post,
+  //       dateCreated: new Date(Date.now())
+  //     })
+  //     const likedPost = await this.likeModel.save(likePost)
+  //     return {
+  //       responseCode: 200,
+  //       likedPost,
+  //       message: "You liked the post"
+  //     }
+  //    }
+  //    throw new NotFoundException(Errormessage.AlreadyLiked)
       
-      const userFollowing = await this.userModel.findOneBy({
-        id
-      })
-      if (!userFollowing)
-        throw new NotFoundException(Errormessage.Userexist);
-      if(userFollower.id == id) throw new NotFoundException(Errormessage.InvalidOperation)
-      const getUserFollowers = await this.followerModel.findOne({
-        where: {
-          userId: id,
-          followerId: userFollower.id
-        }
-      })
-      if(!getUserFollowers) {
-        const followedUser = this.followerModel.create({
-          userId: userFollowing.id,
-          followerId: userFollower.id,
-          dateCreated: new Date(Date.now()),
-        })
-        const followingUser = this.followingModel.create({
-          userId: userFollower.id,
-          followingId: userFollowing.id,
-          dateCreated: new Date(Date.now()),
-        })
-  
-     const follower = await this.followerModel.save(followedUser);
-     const following = await this.followingModel.save(followingUser)
-     return {
-       responseCode: 200,
-       message: "User followed",
-       follower,
-       following
-     }
-      }
-      throw new NotFoundException(Errormessage.AlreadyFollowing)
-    } catch(err) {
-      throw err
-    }
-  }
+  //   } catch(err) {
+  //     throw err
+  //   }
+  // }
 
-  async unfollowUser(token: string, id: number): Promise<any> {
-    try{
-      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
-      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
-      const userFollower = await this.userModel.findOneBy({
-        phone,
-      });
+  // async unlikePost(token: string, id: number): Promise<any> {
+  //   try {
+  //     if (!token) throw new NotFoundException(Errormessage.InvalidToken);
+  //     const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
+  //     const user = await this.userModel.findOneBy({
+  //       phone,
+  //     });
 
-      if (!userFollower)
-        throw new NotFoundException(Errormessage.Userexist);
-      
-      const userFollowing = await this.userModel.findOneBy({
-        id
-      })
-      if (!userFollowing)
-        throw new NotFoundException(Errormessage.Userexist);
-        const getUserFollowers = await this.followerModel.findOne({
-          where: {
-            userId: id,
-            followerId: userFollower.id
-          }
-        })
-        const getUserFollowing = await this.followingModel.findOne({
-          where: {
-            userId: userFollower.id,
-            followingId: id
-          }
-        })
-        if(!getUserFollowers) throw new NotFoundException(Errormessage.NotFollowing)
-        const deleteUserFollower = await this.followerModel.delete(getUserFollowers.id)
-        const deleteUserFollowing = await this.followingModel.delete(getUserFollowing.id)
+  //     if (!user)
+  //       throw new NotFoundException(Errormessage.Userexist);
+  //       const post = await this.postModel.findOne({
+  //         where: {
+  //           id: Equal(id)
+  //         },
+  //         relations: {
+  //           likes: true
+  //         }
+  //       })
+  //       if(!post ) throw new NotFoundException(Errormessage.Post);
+  //       const alreadyLiked = await this.likeModel.findOne({
+  //         where: {
+  //           userId: user.id,
+  //           post : { id: post.id }
+  //         }
+  //       })
+  //       if(!alreadyLiked) throw new NotFoundException(Errormessage.NotLike)
+  //       const unlikePost = await this.likeModel.delete(alreadyLiked.id)
 
-        return {
-          success: true,
-          message: "User successfully unfollowed"
-        }
-    } catch(err) {
-      throw err
-    }
-  }
-
-  async likePost(token: string, id: number): Promise<any> {
-    try {
-      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
-      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
-      const user = await this.userModel.findOneBy({
-        phone,
-      });
-
-      if (!user)
-        throw new NotFoundException(Errormessage.Userexist);
-      const post = await this.postModel.findOne({
-        where: {
-          id: Equal(id)
-        },
-        relations: {
-          likes: true
-        }
-      })
-      if(!post ) throw new NotFoundException(Errormessage.Post);
-      const alreadyLiked = await this.likeModel.findOne({
-        where: {
-          userId: user.id,
-          post : { id: post.id }
-        }
-      })
-     if(!alreadyLiked) {
-      const likePost = await this.likeModel.create({
-        userId: user.id,
-        post,
-        dateCreated: new Date(Date.now())
-      })
-      const likedPost = await this.likeModel.save(likePost)
-      return {
-        responseCode: 200,
-        likedPost,
-        message: "You liked the post"
-      }
-     }
-     throw new NotFoundException(Errormessage.AlreadyLiked)
-      
-    } catch(err) {
-      throw err
-    }
-  }
-
-  async unlikePost(token: string, id: number): Promise<any> {
-    try {
-      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
-      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
-      const user = await this.userModel.findOneBy({
-        phone,
-      });
-      console.log(user)
-
-      if (!user)
-        throw new NotFoundException(Errormessage.Userexist);
-        const post = await this.postModel.findOne({
-          where: {
-            id: Equal(id)
-          },
-          relations: {
-            likes: true
-          }
-        })
-        if(!post ) throw new NotFoundException(Errormessage.Post);
-        const alreadyLiked = await this.likeModel.findOne({
-          where: {
-            userId: user.id,
-            post : { id: post.id }
-          }
-        })
-        if(!alreadyLiked) throw new NotFoundException(Errormessage.NotLike)
-        const unlikePost = await this.likeModel.delete(alreadyLiked.id)
-
-        return {
-          success: true,
-          message: "You unliked the post"
-        }
-    } catch(err) {
-      throw err
-    }
-  }
+  //       return {
+  //         success: true,
+  //         message: "You unliked the post"
+  //       }
+  //   } catch(err) {
+  //     throw err
+  //   }
+  // }
 
 }
