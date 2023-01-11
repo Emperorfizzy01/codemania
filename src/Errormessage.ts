@@ -24,6 +24,12 @@ export const Errormessage = {
       apiErrorCode: '401',
       errorMessage: 'Password does not match',
     },
+
+    Passwordlength: {
+      success: false,
+      apiErrorCode: '401',
+      errorMessage: 'Password length must not be less than 9',
+    },
   
     IncorrectData: {
       success: false,

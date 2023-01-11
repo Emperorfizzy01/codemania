@@ -19,6 +19,11 @@ export declare const Errormessage: {
         apiErrorCode: string;
         errorMessage: string;
     };
+    Passwordlength: {
+        success: boolean;
+        apiErrorCode: string;
+        errorMessage: string;
+    };
     IncorrectData: {
         success: boolean;
         apiErrorCode: string;

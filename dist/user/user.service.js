@@ -56,6 +56,8 @@ let UserService = class UserService {
                 phone: userDto.phone,
             });
             if (!userExist) {
+                if (userDto.password.length < 9)
+                    throw new common_1.NotFoundException(Errormessage_1.Errormessage.Passwordlength);
                 if (userDto.password == userDto.confirmPassword) {
                     const user = await this.userModel.create({
                         password: userDto.password,
