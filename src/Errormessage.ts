@@ -80,4 +80,10 @@ export const Errormessage = {
       apiErrorCode: '403',
       errorMessage: 'You arlready liked that post',
     },
+
+    NotLike: {
+      success: false,
+      apiErrorCode: '403',
+      errorMessage: 'You cant unlike a post you didnt like',
+    }
   };

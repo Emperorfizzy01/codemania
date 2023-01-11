@@ -64,4 +64,9 @@ constructor(private service: UserService) {}
   likePost(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
     return this.service.likePost(token, id);
   }
+
+  @Post('/unlike/:id')
+  unlikePost(@Headers('token') token: string, @Param('id') id: number): Promise<any> {
+    return this.service.unlikePost(token, id);
+  }
 }

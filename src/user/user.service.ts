@@ -325,4 +325,42 @@ export class UserService {
     }
   }
 
+  async unlikePost(token: string, id: number): Promise<any> {
+    try {
+      if (!token) throw new NotFoundException(Errormessage.InvalidToken);
+      const { phone } = <JwtPayload>jwt.verify(token, process.env.JWT_SECRET);
+      const user = await this.userModel.findOneBy({
+        phone,
+      });
+      console.log(user)
+
+      if (!user)
+        throw new NotFoundException(Errormessage.Userexist);
+        const post = await this.postModel.findOne({
+          where: {
+            id: Equal(id)
+          },
+          relations: {
+            likes: true
+          }
+        })
+        if(!post ) throw new NotFoundException(Errormessage.Post);
+        const alreadyLiked = await this.likeModel.findOne({
+          where: {
+            userId: user.id,
+            post : { id: post.id }
+          }
+        })
+        if(!alreadyLiked) throw new NotFoundException(Errormessage.NotLike)
+        const unlikePost = await this.likeModel.delete(alreadyLiked.id)
+
+        return {
+          success: true,
+          message: "You unliked the post"
+        }
+    } catch(err) {
+      throw err
+    }
+  }
+
 }
